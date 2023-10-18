@@ -11,3 +11,14 @@ datasets/visloc_pseudo_gt_limitations
 
 # Outputs.
 output/
+
+# Downloads
+downloads/
+datasets/office
+datasets/stairs
+datasets/applewatch
+datasets/office2
+test
+
+# Others
+dsacstar

@@ -18,6 +18,9 @@ from torchvision import transforms
 from ace_network import Regressor
 
 _logger = logging.getLogger(__name__)
+# extra imported modules
+import os
+import random
 
 
 class CamLocDataset(Dataset):
@@ -130,7 +133,10 @@ class CamLocDataset(Dataset):
             self.coord_files = sorted(coord_dir.iterdir())
         else:
             self.coord_files = None
-
+        print(f"rgb file count {len(self.rgb_files)}")
+        print(f"pose file count {len(self.pose_files)}")
+        print(f"calibration file count {len(self.calibration_files)}")
+ 
         if len(self.rgb_files) != len(self.pose_files):
             raise RuntimeError('RGB file count does not match pose file count!')
 
@@ -350,9 +356,10 @@ class CamLocDataset(Dataset):
     def _load_pose(self, idx):
         # Stored as a 4x4 matrix.
         pose = np.loadtxt(self.pose_files[idx])
+        gl_to_cv = np.array([[1, -1, -1, 1], [-1, 1, 1, -1], [-1, 1, 1, -1], [1, 1, 1, 1]])
+        pose = pose * gl_to_cv
         pose = torch.from_numpy(pose).float()
-
-        return pose
+        return pose 
 
     def _get_single_item(self, idx, image_height):
         # Apply index indirection.
@@ -501,16 +508,22 @@ class CamLocDataset(Dataset):
         intrinsics = torch.eye(3)
         
         # Hardcode the principal point to the centre of the image unless otherwise specified.
-        if centre_point:
-            intrinsics[0, 0] = focal_length[0]
-            intrinsics[1, 1] = focal_length[1]
-            intrinsics[0, 2] = centre_point[0]
-            intrinsics[1, 2] = centre_point[1]
-        else:
-            intrinsics[0, 0] = focal_length
-            intrinsics[1, 1] = focal_length
-            intrinsics[0, 2] = image.shape[2] / 2
-            intrinsics[1, 2] = image.shape[1] / 2
+        # if centre_point:
+        #     intrinsics[0, 0] = focal_length[0]
+        #     intrinsics[1, 1] = focal_length[1]
+        #     intrinsics[0, 2] = centre_point[0]
+        #     intrinsics[1, 2] = centre_point[1]
+        # else:
+        #     intrinsics[0, 0] = focal_length
+        #     intrinsics[1, 1] = focal_length
+        #     intrinsics[0, 2] = image.shape[2] / 2
+        #     intrinsics[1, 2] = image.shape[1] / 2
+        
+        # TBT
+        intrinsics[0, 0] = focal_length[0]
+        intrinsics[1, 1] = focal_length[1]
+        intrinsics[0, 2] = image.shape[2] / 2
+        intrinsics[1, 2] = image.shape[1] / 2
 
         # Also need the inverse.
         intrinsics_inv = intrinsics.inverse()

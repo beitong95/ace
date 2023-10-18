@@ -1,4 +1,4 @@
-name: ace
+name: beitong_ace
 channels:
   - pytorch
   - nvidia
