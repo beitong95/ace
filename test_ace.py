@@ -11,7 +11,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 import torch
-torch.backends.quantized.engine = 'qnnpack'
+# torch.backends.quantized.engine = 'qnnpack'
 
 from torch.cuda.amp import autocast
 from torch.utils.data import DataLoader
@@ -192,14 +192,18 @@ if __name__ == '__main__':
     testing_start_time = time.time()
     with torch.no_grad():
         for image_B1HW, _, gt_pose_B44, _, intrinsics_B33, _, _, filenames in testset_loader:
+            _logger.info(f"{image_B1HW.shape}")
             batch_start_time = time.time()
             batch_size = image_B1HW.shape[0]
 
             image_B1HW = image_B1HW.to(device, non_blocking=True)
+            
 
             # Predict scene coordinates.
+            batch_inference_start = time.time()
             with autocast(enabled=True):
                 scene_coordinates_B3HW = network(image_B1HW)
+            batch_inference_time = time.time() - batch_inference_start
 
             # We need them on the CPU to run RANSAC.
             scene_coordinates_B3HW = scene_coordinates_B3HW.float().cpu()
@@ -207,6 +211,7 @@ if __name__ == '__main__':
             # Each frame is processed independently.
             for frame_idx, (scene_coordinates_3HW, gt_pose_44, intrinsics_33, frame_path) in enumerate(
                     zip(scene_coordinates_B3HW, gt_pose_B44, intrinsics_B33, filenames)):
+                _logger.info(f"index: {frame_idx}")
 
                 # Extract focal length and principal point from the intrinsics matrix.
                 focal_length = intrinsics_33[0, 0].item()
@@ -222,6 +227,7 @@ if __name__ == '__main__':
                 out_pose = torch.zeros((4, 4))
 
                 # Compute the pose via RANSAC.
+                dsacstar_start_time = time.time() 
                 inlier_count = dsacstar.forward_rgb(
                     scene_coordinates_3HW.unsqueeze(0),
                     out_pose,
@@ -234,6 +240,7 @@ if __name__ == '__main__':
                     opt.maxpixelerror,
                     network.OUTPUT_SUBSAMPLE,
                 )
+                dsacstar_process_time = time.time() - dsacstar_start_time
 
                 # Calculate translation error.
                 t_err = float(torch.norm(gt_pose_44[0:3, 3] - out_pose[0:3, 3]))
@@ -292,8 +299,11 @@ if __name__ == '__main__':
                                f"{q_w} {q_xyz[0].item()} {q_xyz[1].item()} {q_xyz[2].item()} "
                                f"{t[0]} {t[1]} {t[2]} "
                                f"{r_err} {t_err} {inlier_count}\n")
-
-            avg_batch_time += time.time() - batch_start_time
+            batch_process_time = time.time() - batch_start_time
+            _logger.info(f"batch inference time {batch_inference_time:.3f} seconds")
+            _logger.info(f"dsacstar process time {dsacstar_process_time:.3f} seconds")
+            _logger.info(f"batch time {batch_process_time:.3f} seconds")
+            avg_batch_time += batch_process_time
             num_batches += 1
 
     total_frames = len(rErrs)
