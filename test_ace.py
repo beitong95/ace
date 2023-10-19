@@ -11,6 +11,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 import torch
+torch.backends.quantized.engine = 'qnnpack'
+
 from torch.cuda.amp import autocast
 from torch.utils.data import DataLoader
 
@@ -94,9 +96,10 @@ if __name__ == '__main__':
                         help='skip every xth frame for long and dense query sequences')
 
     opt = parser.parse_args()
+    print(torch.cuda.is_available())
 
-    device = torch.device("cuda")
-    num_workers = 6
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    num_workers = 4
 
     scene_path = Path(opt.scene)
     head_network_path = Path(opt.network)
