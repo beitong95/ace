@@ -195,7 +195,8 @@ if __name__ == '__main__':
             _logger.info(f"{image_B1HW.shape}")
             batch_start_time = time.time()
             batch_size = image_B1HW.shape[0]
-
+            _logger.info(f"image B1HW type {image_B1HW.dtype}")
+            _logger.info(image_B1HW)
             image_B1HW = image_B1HW.to(device, non_blocking=True)
             
 
