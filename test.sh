@@ -9,3 +9,4 @@ python3 test_ace.py datasets/office2 output/own/office2_240p.pt --image_resoluti
 # python3 test_ace.py datasets/office2 output/own/office2_60p.pt --image_resolution 60 2>&1 | tee output/own/log_office2.txt 
 # python3 test_ace.py datasets/office2 output/own/office2_160p.pt --image_resolution 160 2>&1 | tee output/own/log_office2.txt 
 #python3 test_ace.py datasets/office2 output/own/office2_90p.pt --image_resolution 90 2>&1 | tee output/own/log_office2.txt 
+# python3 test_ace.py datasets/office2 output/own/office2_60p.pt --image_resolution 60 2>&1 | tee output/own/log_office2.txt 

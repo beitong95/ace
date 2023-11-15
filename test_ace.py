@@ -20,8 +20,8 @@ import dsacstar
 from ace_network import Regressor
 from dataset import CamLocDataset
 
-import ace_vis_util as vutil
-from ace_visualizer import ACEVisualizer
+# import ace_vis_util as vutil
+# from ace_visualizer import ACEVisualizer
 
 _logger = logging.getLogger(__name__)
 
@@ -159,34 +159,34 @@ if __name__ == '__main__':
     pct1 = 0
 
     # Generate video of training process
-    if opt.render_visualization:
-        # infer rendering folder from map file name
-        target_path = vutil.get_rendering_target_path(
-            opt.render_target_path,
-            opt.network)
-        ace_visualizer = ACEVisualizer(target_path,
-                                       opt.render_flipped_portrait,
-                                       opt.render_map_depth_filter,
-                                       reloc_vis_error_threshold=opt.render_pose_error_threshold)
+    # if opt.render_visualization:
+    #     # infer rendering folder from map file name
+    #     target_path = vutil.get_rendering_target_path(
+    #         opt.render_target_path,
+    #         opt.network)
+    #     ace_visualizer = ACEVisualizer(target_path,
+    #                                    opt.render_flipped_portrait,
+    #                                    opt.render_map_depth_filter,
+    #                                    reloc_vis_error_threshold=opt.render_pose_error_threshold)
 
-        # we need to pass the training set in case the visualiser has to regenerate the map point cloud
-        trainset = CamLocDataset(
-            scene_path / "train",
-            mode=0,  # Default for ACE, we don't need scene coordinates/RGB-D.
-            image_height=opt.image_resolution,
-        )
+    #     # we need to pass the training set in case the visualiser has to regenerate the map point cloud
+    #     trainset = CamLocDataset(
+    #         scene_path / "train",
+    #         mode=0,  # Default for ACE, we don't need scene coordinates/RGB-D.
+    #         image_height=opt.image_resolution,
+    #     )
 
-        # Setup dataloader. Batch size 1 by default.
-        trainset_loader = DataLoader(trainset, shuffle=False, num_workers=6)
+    #     # Setup dataloader. Batch size 1 by default.
+    #     trainset_loader = DataLoader(trainset, shuffle=False, num_workers=6)
 
-        ace_visualizer.setup_reloc_visualisation(
-            frame_count=len(testset),
-            data_loader=trainset_loader,
-            network=network,
-            camera_z_offset=opt.render_camera_z_offset,
-            reloc_frame_skip=opt.render_frame_skip)
-    else:
-        ace_visualizer = None
+    #     ace_visualizer.setup_reloc_visualisation(
+    #         frame_count=len(testset),
+    #         data_loader=trainset_loader,
+    #         network=network,
+    #         camera_z_offset=opt.render_camera_z_offset,
+    #         reloc_frame_skip=opt.render_frame_skip)
+    # else:
+    #     ace_visualizer = None
 
     # Testing loop.
     testing_start_time = time.time()
@@ -258,13 +258,13 @@ if __name__ == '__main__':
 
                 _logger.info(f"Rotation Error: {r_err:.2f}deg, Translation Error: {t_err * 100:.1f}cm")
 
-                if ace_visualizer is not None:
-                    ace_visualizer.render_reloc_frame(
-                        query_pose=gt_pose_44.numpy(),
-                        query_file=frame_path,
-                        est_pose=out_pose.numpy(),
-                        est_error=max(r_err, t_err*100),
-                        sparse_query=opt.render_sparse_queries)
+                # if ace_visualizer is not None:
+                #     ace_visualizer.render_reloc_frame(
+                #         query_pose=gt_pose_44.numpy(),
+                #         query_file=frame_path,
+                #         est_pose=out_pose.numpy(),
+                #         est_error=max(r_err, t_err*100),
+                #         sparse_query=opt.render_sparse_queries)
 
                 # Save the errors.
                 rErrs.append(r_err)
