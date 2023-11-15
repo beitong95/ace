@@ -35,7 +35,9 @@ class TrainerACE:
     def __init__(self, options):
         self.options = options
 
-        self.device = torch.device('cuda')
+        self.device = torch.device(f"cuda:{options.device_id}")
+
+
 
         # The flag below controls whether to allow TF32 on matmul. This flag defaults to True.
         # torch.backends.cuda.matmul.allow_tf32 = False

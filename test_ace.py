@@ -93,9 +93,13 @@ if __name__ == '__main__':
     parser.add_argument('--render_frame_skip', type=int, default=1,
                         help='skip every xth frame for long and dense query sequences')
 
+    parser.add_argument('--device_id', type=int, default=0,
+                        help='select the GPU for training. 0 is 4090 1 is 3080')
+
     opt = parser.parse_args()
 
-    device = torch.device("cuda")
+    # device = torch.device("cuda")
+    device = torch.device(f"cuda:{opt.device_id}")
     num_workers = 6
 
     scene_path = Path(opt.scene)

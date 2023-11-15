@@ -121,6 +121,9 @@ if __name__ == '__main__':
     parser.add_argument('--render_camera_z_offset', type=int, default=4,
                         help='zoom out of the scene by moving render camera backwards, in meters')
 
+    parser.add_argument('--device_id', type=int, default=0,
+                        help='select the GPU for training. 0 is 4090 1 is 3080')
+
     options = parser.parse_args()
 
     trainer = TrainerACE(options)
