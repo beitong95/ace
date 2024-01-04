@@ -18,6 +18,11 @@ datasets/office
 datasets/stairs
 datasets/applewatch
 datasets/office2
+datasets/office3
+datasets/office3_rpi
+model_output_tflite
+result.md
+test_3d_transform.ipynb
 test
 
 # Others
